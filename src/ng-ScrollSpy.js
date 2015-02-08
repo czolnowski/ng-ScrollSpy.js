@@ -17,10 +17,19 @@
       'delay': 100
     })
 
-    .run(['PositionFactory', function(PositionFactory) {
+    .run(['PositionFactory', 'SpyFactory', '$rootScope', function(PositionFactory, SpyFactory, $rootScope) {
       PositionFactory.refreshPositions();
       angular.element(window).bind('scroll', function() {
         PositionFactory.refreshPositions();
+      });
+
+      $rootScope.$on('$routeChangeSuccess', function(after, before) {
+        var routeHasChanged = after !== before;
+        if (routeHasChanged) {
+          return;
+        }
+
+        SpyFactory.clearSpies();
       });
     }])
 
@@ -54,11 +63,15 @@
         },
         'broadcast': function() {
           $rootScope.$broadcast('spied');
+        },
+        'clearSpies': function ()
+        {
+          this.spies = [];
         }
       }
     }])
 
-    .directive('scrollspyBroadcast', ['config', 'scrollspyConfig', 'SpyFactory', 'PositionFactory', function(config, scrollspyConfig, SpyFactory, PositionFactory) {
+    .directive('scrollspyBroadcast', ['config', 'scrollspyConfig', 'SpyFactory', 'PositionFactory', '$rootScope', function(config, scrollspyConfig, SpyFactory, PositionFactory, $rootScope) {
       return {
         restrict: 'A',
         scope: true,
@@ -91,6 +104,16 @@
 
           angular.element(document).ready( function() { scope.checkActive() });
           angular.element(window).bind('resize', function () { scope.checkActive() });
+
+          $rootScope.$on('$routeChangeSuccess', function(after, before) {
+            var routeHasChanged = after !== before;
+            if (routeHasChanged) {
+              return;
+            }
+
+            // Clear checkActive in scope for current element on route change
+            scope.checkActive = function () {};
+          });
         }
       }
     }])
