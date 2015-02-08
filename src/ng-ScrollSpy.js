@@ -25,7 +25,7 @@
 
       $rootScope.$on('$routeChangeSuccess', function(after, before) {
         var routeHasChanged = after !== before;
-        if (routeHasChanged) {
+        if (!routeHasChanged) {
           return;
         }
 
@@ -107,7 +107,7 @@
 
           $rootScope.$on('$routeChangeSuccess', function(after, before) {
             var routeHasChanged = after !== before;
-            if (routeHasChanged) {
+            if (!routeHasChanged) {
               return;
             }
 
